@@ -1,9 +1,10 @@
 import { GoogleMap, useLoadScript } from "@react-google-maps/api";
-import { ESCAPE_ROOM_FILE, GOOGLE_MAPS_API_KEY } from "../common/Constants";
-import escapeRoomDetails from "./../data/terpeca-2021-round1.txt";
-import "./MapContainer.css";
+import * as React from "react";
+import { GOOGLE_MAPS_API_KEY } from "../common/Constants";
+import escapeRoomDetails from "./../assets/terpecta-2021-round1.txt";
+import "./Map.css";
 
-export default function MapContainer() {
+export default function Map() {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
   });
@@ -31,7 +32,7 @@ function parseEscapeRoomDetails() {
   const content = escapeRoomDetails;
   const details = content.split(/\r?\n/);
 
-  var escapeRooms = [];
+  var escapeRooms = new EscapeRoom();
 
   details.forEach(function (entry) {
     var room = {};
@@ -49,9 +50,9 @@ function parseEscapeRoomDetails() {
       company = nameAndCompany[2];
     }
 
-    room["name"] = name;
-    room["company"] = company;
-    room["location"] = location[0];
+    room["name"] = name.trim();
+    room["company"] = company.trim();
+    room["location"] = location[0].trim().substring(1, location[0].length - 1);
     escapeRooms.push(room);
   });
 

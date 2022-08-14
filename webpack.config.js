@@ -9,6 +9,14 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.tsx?$/,
+        options: {
+          configFileName: "tsconfig.json",
+        },
+        use: ["ts-loader"],
+        exclude: /node_modules/,
+      },
+      {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: ["babel-loader"],
@@ -30,7 +38,7 @@ module.exports = {
     }),
   ],
   resolve: {
-    extensions: ["*", ".js", ".jsx"],
+    extensions: ["*", ".tsx", ".ts", ".js", ".jsx"],
   },
   output: {
     path: path.resolve(__dirname, "./public"),
