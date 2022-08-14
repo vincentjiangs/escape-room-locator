@@ -4,7 +4,7 @@ import {
   QueryDocumentSnapshot,
 } from "firebase/firestore";
 
-class EscapeRoom {
+export class EscapeRoom {
   name: string;
   company: string;
   location: string;

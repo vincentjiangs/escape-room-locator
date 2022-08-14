@@ -6,10 +6,11 @@ import {
   serverTimestamp,
   doc,
   getDoc,
+  DocumentReference,
+  DocumentSnapshot,
 } from "firebase/firestore";
-import { FIREBASE_COLLECTION } from "../common/Constants";
-import { escapeRoomConverter } from "../models/EscapeRoom";
 import {
+  FIREBASE_COLLECTION,
   FIREBASE_API_KEY,
   FIREBASE_APP_ID,
   FIREBASE_AUTH_DOMAIN,
@@ -17,7 +18,8 @@ import {
   FIREBASE_MESSAGE_SENDER_ID,
   FIREBASE_PROJECT_ID,
   FIREBASE_STORAGE_BUCKET,
-} from "./common/Constants";
+} from "../common/Constants";
+import { EscapeRoom, escapeRoomConverter } from "../models/EscapeRoom";
 
 const firebaseConfig = {
   apiKey: FIREBASE_API_KEY,
@@ -31,19 +33,22 @@ const firebaseConfig = {
 const firebase = initializeApp(firebaseConfig);
 const firestore = getFirestore(firebase);
 
-export const getEscapeRoom = (name, company, location) => {
-  const roomRef = doc(firestore, FIREBASE_COLLECTION, name).withConverter(escapeRoomConverter);
-  const room = await getDoc(roomRef);
-  
+export function getEscapeRoom(room: EscapeRoom): Promise<DocumentSnapshot> {
+  const escapeRoomCollection = collection(firestore, FIREBASE_COLLECTION);
+  const roomRef = doc(escapeRoomCollection, room.toString()).withConverter(
+    escapeRoomConverter
+  );
+  const roomSnap = getDoc(roomRef);
+  return roomSnap;
 }
 
-export const addEscapeRoom = (room) => {
+export function addEscapeRoom(room: EscapeRoom): Promise<DocumentReference> {
   const escapeRoomCollection = collection(firestore, FIREBASE_COLLECTION);
-  const roomRef = doc(firestore, FIREBASE_COLLECTION, )
+  const roomRef = doc(firestore, FIREBASE_COLLECTION);
   return addDoc(escapeRoomCollection, {
     created: serverTimestamp(),
-    name: name,
-    company: company,
-    location: location,
+    name: room.name,
+    company: room.company,
+    location: room.location,
   });
-};
+}
