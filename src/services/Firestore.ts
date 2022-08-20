@@ -2,12 +2,12 @@ import { initializeApp } from "firebase/app";
 import {
   getFirestore,
   collection,
-  addDoc,
-  serverTimestamp,
   doc,
   getDoc,
-  DocumentReference,
   DocumentSnapshot,
+  setDoc,
+  deleteDoc,
+  writeBatch,
 } from "firebase/firestore";
 import {
   FIREBASE_COLLECTION,
@@ -34,21 +34,40 @@ const firebase = initializeApp(firebaseConfig);
 const firestore = getFirestore(firebase);
 
 export function getEscapeRoom(room: EscapeRoom): Promise<DocumentSnapshot> {
-  const escapeRoomCollection = collection(firestore, FIREBASE_COLLECTION);
-  const roomRef = doc(escapeRoomCollection, room.toString()).withConverter(
-    escapeRoomConverter
-  );
+  const roomCollection = collection(firestore, FIREBASE_COLLECTION);
+  const roomRef = doc(roomCollection, room.toString()).withConverter(escapeRoomConverter);
   const roomSnap = getDoc(roomRef);
   return roomSnap;
 }
 
-export function addEscapeRoom(room: EscapeRoom): Promise<DocumentReference> {
-  const escapeRoomCollection = collection(firestore, FIREBASE_COLLECTION);
-  const roomRef = doc(firestore, FIREBASE_COLLECTION);
-  return addDoc(escapeRoomCollection, {
-    created: serverTimestamp(),
-    name: room.name,
-    company: room.company,
-    location: room.location,
+/**
+ * Add a single escape room. Uses {@code EscapeRoom.toString()} as the database entry identifier.
+ *
+ * @param room
+ * @returns
+ */
+export function addEscapeRoom(room: EscapeRoom): Promise<void> {
+  const roomRef = doc(firestore, FIREBASE_COLLECTION, room.toString()).withConverter(escapeRoomConverter);
+  return setDoc(roomRef, room);
+}
+
+/**
+ * Batch update escape rooms. Updates existing documents and fails if the room does not exist.
+ *
+ * @param rooms
+ * @returns
+ */
+export function addBatchEscapeRooms(rooms: EscapeRoom[]): Promise<void> {
+  const batch = writeBatch(firestore);
+  rooms.forEach((room) => {
+    const roomRef = doc(firestore, FIREBASE_COLLECTION, room.toString()).withConverter(escapeRoomConverter);
+    batch.update(roomRef, room);
   });
+  return batch.commit();
+}
+
+// TODO: Safety check
+export function removeEscapeRoom(room: EscapeRoom): Promise<void> {
+  const roomRef = doc(firestore, FIREBASE_COLLECTION, room.toString()).withConverter(escapeRoomConverter);
+  return deleteDoc(roomRef);
 }

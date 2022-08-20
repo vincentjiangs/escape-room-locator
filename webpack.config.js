@@ -5,15 +5,19 @@ const dotenv = require("dotenv").config({
 });
 
 module.exports = {
-  entry: path.resolve(__dirname, "./src/index.js"),
+  entry: path.resolve(__dirname, "./src/index.tsx"),
   module: {
     rules: [
       {
         test: /\.tsx?$/,
-        options: {
-          configFileName: "tsconfig.json",
-        },
-        use: ["ts-loader"],
+        use: [
+          {
+            loader: "ts-loader",
+            options: {
+              configFile: "tsconfig.json",
+            },
+          },
+        ],
         exclude: /node_modules/,
       },
       {
@@ -28,7 +32,7 @@ module.exports = {
       },
       {
         test: /\.txt/,
-        type: "asset/source",
+        use: ["raw-loader"],
       },
     ],
   },
